@@ -19,7 +19,7 @@ our @EXPORT = qw/
     set_seed
 /;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use Test::Builder;
 use Set::CrossProduct;
@@ -156,7 +156,8 @@ sub all_arent(&$$;$) {
 sub _try_all_of_the_list {
     my ($sub, @param) = @_;
     foreach my $p (@param) {
-        $sub->($p) or return [$p];
+        local $_ = $p;
+        $sub->($_) or return [$_];
     }
     return undef;
 }
@@ -164,8 +165,8 @@ sub _try_all_of_the_list {
 sub _try_most_of_the_list {
     my ($sub,$nr,@param) = @_;
     while ($nr-- > 0) {
-        my $p = $param[rand @param];
-        $sub->($p) or return [$p];
+        local $_ = $param[rand @param];
+        $sub->($_) or return [$_];
     }
     return undef;
 }
@@ -330,6 +331,9 @@ you can write in general
   all_ok CODE \@values, TEST_NAME
  
 So C<all_ok {&foo} [1,2,3]> would call C<foo(1); foo(2); foo(3)>.
+(In this way and only in this, C<$_> will be set to the passed argument.
+ Thus it is C<$_ = $_[0]> in this special case.
+ Reason for this behaviour is just convenience.)
 
 Please take care, that the first element of the values list isn't an array ref,
 as Test::ManyParams would assume that you want to test combinations of the above.
@@ -348,7 +352,7 @@ what is very different to
   all_ok {&foo} [ @values ];
   
   # what would call foo(1,100,900), foo(1,100,901), ...
-  
+
 
 Of course, the test name is always optional, but recommended.
 

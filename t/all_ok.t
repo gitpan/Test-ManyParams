@@ -8,7 +8,7 @@ use Test::More;
 use Test::Exception;
 use Test::Builder::Tester tests => 239;
 use Data::Dumper;
-use t'CommonStuff;
+use t::CommonStuff;
 
 Test::Builder::Tester::color(1);
 
