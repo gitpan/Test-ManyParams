@@ -10,11 +10,12 @@ our @ISA = qw(Exporter);
 
 our @EXPORT = qw(
     all_ok	
-    any_ok
     all_are all_arent
+    any_ok
+    any_is any_isnt
 );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Test::Builder;
 use Set::CrossProduct;
@@ -62,6 +63,32 @@ sub any_ok(&$;$) {
     my $ok = !$all_arent_ok;
     $Tester->ok( $ok, $test_name );
     return $ok;
+}
+
+sub any_is(&$$;$) {
+    my ($sub, $expected_value, $params, $test_name) = @_;
+    my ($all_arent_ok, @diag) = 
+        does_all(sub {!($sub->(@_) eq $expected_value)}, $params, $test_name);
+    my $ok = !$all_arent_ok;
+    $Tester->ok( $ok, $test_name)
+    or do {
+        $Tester->diag($_) for @diag;
+        $Tester->diag("Expected: " . _dump_params($expected_value));
+        $Tester->diag("but didn't found it with at least one parameter");
+    };
+}
+
+sub any_isnt(&$$;$) {
+    my ($sub, $expected_value, $params, $test_name) = @_;
+    my ($all_arent_ok, @diag) = 
+        does_all(sub {!($sub->(@_) ne $expected_value)}, $params, $test_name);
+    my $ok = !$all_arent_ok;
+    $Tester->ok( $ok, $test_name)
+    or do {
+        $Tester->diag($_) for @diag;
+        $Tester->diag("Expected to find any parameter where result is different to " . _dump_params($expected_value));
+        $Tester->diag("but didn't found such parameters");
+    };
 }
 
 sub all_are(&$$;$) {
@@ -139,6 +166,7 @@ Test::ManyParams - module to test many params as one test
   
   any_ok {drunken_person() eq shift()}
          ["Jim Beam", "Jonny Walker", "Jack Daniels"];
+  any_is {ask_for_sense_of_life(shift())} 42, ["Jack London", "Douglas Adams"];
   
   [NOT YET IMPLEMENTED]
   
@@ -273,6 +301,17 @@ They are compared with 'eq'.
 =item any_ok  CODE  PARAMETERS,  [ TEST_NAME ]
 
 Returns whether the subroutine returns true for one of the given parameters.
+
+=item any_is  CODE  VALUE,  PARAMETERS, [ TEST_NAME ]
+
+Returns whether there is at least one parameter (combination) 
+for that the given subroutine results the specified value.
+
+=item any_isnt CODE  VALUE,  PARAMETERS, [ TEST_NAME ]
+
+Returns whether there is at least one parameter (combination)
+for that the given subroutine results to a value different to 
+the specified one.
 
 =back
 

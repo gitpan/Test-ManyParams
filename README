@@ -1,4 +1,4 @@
-Test/ManyParams version 0.04
+Test/ManyParams version 0.05
 ============================
 
 SYNOPSIS
@@ -15,6 +15,8 @@ SYNOPSIS
          
   any_ok {drunken_person() eq shift()}
          ["Jim Beam", "Jonny Walker", "Jack Daniels"];
+  any_is {ask_for_sense_of_life(shift())} 42, ["Jack London", "Douglas Adams"];
+           
   
   [NOT YET IMPLEMENTED]
   

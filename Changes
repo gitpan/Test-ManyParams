@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::ManyParams.
 
+0.05  Tue Aug 20
+        - implemented any_is, any_isnt method
+
 0.04  Mon Aug 19
         - fixed MANIFEST, test routine for any_ok was forgotten in 0.03
         - fixed README as the 0.03 actualisations wasn't included
