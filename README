@@ -1,0 +1,43 @@
+Test/ManyParams version 0.01
+============================
+
+SYNOPSIS
+
+  use Test::ManyParams;
+
+  all_ok {foo(@_)}  
+         [ [$arg1a, $arg2a], [$arg2b, $arg2b, $arg3b, $arg4b] ],
+         "Testing that foo returns true for every combination of the arguments";
+         
+  all_ok {bar(shift())}
+         [qw/arg1 arg2 arg3 arg4 arg5 arg6/],
+         "Testing every argument with bar";
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+    Test::Builder       
+    Set::CrossProduct   
+    Data::Dumper        
+
+    Test::More          
+    Test::Exception     
+    Test::Builder::Tester
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2002 Janek Schleicher
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
+

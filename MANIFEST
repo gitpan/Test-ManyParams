@@ -1,0 +1,8 @@
+Changes
+Makefile.PL
+MANIFEST
+ManyParams.pm
+README
+t/1.t
+t/all_ok.t
+t/all_params_are_passed.t
