@@ -1,4 +1,4 @@
-Test/ManyParams version 0.01
+Test/ManyParams version 0.02
 ============================
 
 SYNOPSIS
@@ -12,6 +12,16 @@ SYNOPSIS
   all_ok {bar(shift())}
          [qw/arg1 arg2 arg3 arg4 arg5 arg6/],
          "Testing every argument with bar";
+         
+  [NOT YET IMPLEMENTED]
+  
+  all_are_deeply  CODE  SCALAR,  PARAMETERS, [ TEST_NAME ]
+  all_like        CODE  REGEXP,  PARAMETERS, [ TEST_NAME ]
+  all_unlike      CODE  REGEXP,  PARAMETERS, [ TEST_NAME ]
+  all_can         CODE  METHODS, PARAMETERS, [ TEST_NAME ]
+  all_dies_ok     CODE           PARAMETERS, [TEST_NAME]
+  all_lives_ok    CODE           PARAMETERS, [TEST_NAME]
+  all_throws_ok   CODE  REGEXP,  PARAMETERS, [TEST_NAME]            
 
 INSTALLATION
 
@@ -30,7 +40,7 @@ This module requires these other modules and libraries:
     Set::CrossProduct   
     Data::Dumper        
 
-    Test::More          
+    Test::More               # for testing
     Test::Exception     
     Test::Builder::Tester
 

@@ -4,5 +4,8 @@ MANIFEST
 ManyParams.pm
 README
 t/1.t
+t/CommonStuff.pm
 t/all_ok.t
+t/all_are.t
+t/all_arent.t
 t/all_params_are_passed.t

@@ -10,9 +10,10 @@ our @ISA = qw(Exporter);
 
 our @EXPORT = qw(
     all_ok	
+    all_are all_arent
 );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Test::Builder;
 use Set::CrossProduct;
@@ -20,9 +21,8 @@ use Data::Dumper;
 
 my $Tester = Test::Builder->new();
 
-
-sub all_ok(&$;$) {
-    my ($sub, $params, $test_name) = @_;
+sub does_all {
+    my ($sub, $params) = @_;
     my $failed_param = undef;
     if (ref($params->[0]) eq 'ARRAY') {
         if (grep {ref($params->[$_]) ne 'ARRAY'} (1 .. @$params-1)) {
@@ -36,11 +36,43 @@ sub all_ok(&$;$) {
         $failed_param = _try_all_of_the_list($sub, @$params);
     }
     my $ok = not defined($failed_param);
-    $Tester->ok( $ok, $test_name ) or do {
-        $Tester->diag("Tests with the parameters: " . _dump_params($params));
-        $Tester->diag("Failed first using these parameters: " . _dump_params($failed_param));
-    };
+    my @diag = $ok 
+        ? () 
+        : ("Tests with the parameters: " . _dump_params($params),
+           "Failed first using these parameters: " . _dump_params($failed_param));
+    return ($ok, @diag);
+}
+
+sub all_ok(&$;$) {
+    my ($sub, $params, $test_name) = @_;
+    my ($ok, @diag) = does_all(@_);
+    $Tester->ok( $ok, $test_name ) or do { $Tester->diag($_) for @diag };
     return $ok;
+}
+
+sub all_are(&$$;$) {
+    my ($sub, $expected, $params, $test_name) = @_;
+    my $found = undef;
+    my ($ok, @diag) = 
+        does_all( sub { $found = $sub->(@_); $found eq $expected }, $params);
+    $Tester->ok($ok, $test_name)
+    or do {
+        $Tester->diag($_) for @diag;
+        $Tester->diag("Expected: " . _dump_params($expected));
+        $Tester->diag("but found: " . _dump_params($found));
+    };
+}
+
+sub all_arent(&$$;$) {
+    my ($sub, $unexpected, $params, $test_name) = @_;
+    my $found = undef;
+    my ($ok, @diag) = 
+        does_all( sub { $found = $sub->(@_); $found ne $unexpected }, $params);
+    $Tester->ok($ok, $test_name)
+    or do {
+        $Tester->diag($_) for @diag;
+        $Tester->diag("Expected not to find " . _dump_params($unexpected) . " but found it");
+    };
 }
 
 sub _try_all_of_the_list {
@@ -87,8 +119,23 @@ Test::ManyParams - module to test many params as one test
   all_ok {bar(shift())}
          [qw/arg1 arg2 arg3 arg4 arg5 arg6/],
          "Testing every argument with bar";
+         
+  all_are       CODE  VALUE,   PARAMETERS, [ TEST_NAME ]
+  all_arent     CODE  VALUE,   PARAMETERS, [ TEST_NAME ]
+  
+  [NOT YET IMPLEMENTED]
+  
+  all_are_deeply  CODE  SCALAR,  PARAMETERS, [ TEST_NAME ]
+  all_like        CODE  REGEXP,  PARAMETERS, [ TEST_NAME ]
+  all_unlike      CODE  REGEXP,  PARAMETERS, [ TEST_NAME ]
+  all_can         CODE  METHODS, PARAMETERS, [ TEST_NAME ]
+  all_dies_ok     CODE           PARAMETERS, [TEST_NAME]
+  all_lives_ok    CODE           PARAMETERS, [TEST_NAME]
+  all_throws_ok   CODE  REGEXP,  PARAMETERS, [TEST_NAME]
 
 =head1 DESCRIPTION
+
+=head2 GENERAL PRINCIPLES
 
 This module helps to tests many parameters at once.
 In general, it calls the given subroutine with every
@@ -186,9 +233,34 @@ what is very different to
 
 Of course, the test name is always optional, but recommended.
 
+=head2 FUNCTIONS
+
+=over
+
+=item all_ok  CODE  PARAMETERS,  [ TEST_NAME ]
+
+See the general comments.
+
+=item all_are  CODE  VALUE,  PARAMETERS,  [ TEST_NAME ]
+
+The equivalent to C<Test::More>'s C<is> method.
+The given subroutine has to return always the given value.
+They are compared with 'eq'.
+
+=item all_arent  CODE  VALUE,  PARAMETERS,  [ TEST_NAME ]
+
+The equivalent to C<Test::More>'s C<isnt> method.
+The given subroutine has to return always values different from the given one.
+They are compared with 'eq'.
+
+=back
+
+
 =head2 EXPORT
 
 C<all_ok>
+C<all_are>
+C<all_arent>
 
 =head1 BUGS
 
@@ -213,9 +285,7 @@ Here's a list of them:
 
 =over
 
-=item all_are CODE  VALUE,  PARAMETERS,  [ TEST_NAME ]
-
-=item all_arent CODE  VALUE, PARAMETERS,  [ TEST_NAME ]
+=item all_are_deeply  CODE  SCALAR,  PARAMETERS, [ TEST_NAME ]
 
 =item all_like CODE  REGEXP, PARAMETERS, [ TEST_NAME ]
 
@@ -233,6 +303,7 @@ Here's a list of them:
 
 Then I'd like to implement a method that uses only some random
 choosen parameters instead of all parameters.
+
 That is important when the parameter set is too big to
 have a full test of on them.
 
@@ -264,6 +335,7 @@ Of course, there will be also some methods like C<most_are>,C<most_arent>,... .
 
 The next thing, I'll do is to implement the C<all_dies_ok> method.
 
+
 =head1 SEE ALSO
 
 This module had been and will be discussed on perl.qa.
@@ -273,7 +345,7 @@ L<Test::Exception>
 
 =head1 THANKS
 
-Thanks to Nichalos Clark and to Tels (http://www.bloodgate.com) for
+Thanks to Nicholas Clark and to Tels (http://www.bloodgate.com) for
 giving a lot of constructive ideas.
 
 =head1 AUTHOR
