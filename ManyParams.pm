@@ -14,7 +14,7 @@ our @EXPORT = qw(
     all_are all_arent
 );
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Test::Builder;
 use Set::CrossProduct;

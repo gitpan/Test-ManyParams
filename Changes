@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::ManyParams.
 
+0.04  Mon Aug 19
+        - fixed MANIFEST, test routine for any_ok was forgotten in 0.03
+        - fixed README as the 0.03 actualisations wasn't included
+
 0.03  Mon Aug 19
         - implemented any_ok method
 
@@ -10,4 +14,3 @@ Revision history for Perl extension Test::ManyParams.
         - implemented all_ok method
 	- original version; created by h2xs 1.22 with options
 		-XA -b5.6.0 Test::ManyParams
-

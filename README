@@ -1,4 +1,4 @@
-Test/ManyParams version 0.02
+Test/ManyParams version 0.04
 ============================
 
 SYNOPSIS
@@ -13,6 +13,9 @@ SYNOPSIS
          [qw/arg1 arg2 arg3 arg4 arg5 arg6/],
          "Testing every argument with bar";
          
+  any_ok {drunken_person() eq shift()}
+         ["Jim Beam", "Jonny Walker", "Jack Daniels"];
+  
   [NOT YET IMPLEMENTED]
   
   all_are_deeply  CODE  SCALAR,  PARAMETERS, [ TEST_NAME ]
