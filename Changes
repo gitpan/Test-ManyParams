@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::ManyParams.
 
+0.03  Mon Aug 19
+        - implemented any_ok method
+
 0.02  Tue Aug 13
         - implemented all_are and all_arent methods
 

@@ -10,10 +10,11 @@ our @ISA = qw(Exporter);
 
 our @EXPORT = qw(
     all_ok	
+    any_ok
     all_are all_arent
 );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Test::Builder;
 use Set::CrossProduct;
@@ -47,6 +48,19 @@ sub all_ok(&$;$) {
     my ($sub, $params, $test_name) = @_;
     my ($ok, @diag) = does_all(@_);
     $Tester->ok( $ok, $test_name ) or do { $Tester->diag($_) for @diag };
+    return $ok;
+}
+
+sub any_ok(&$;$) {
+    my ($sub, $params, $test_name) = @_;
+    
+    # Please recognise the logic
+    # To find out if any of the tests is O.K.,
+    # I ask whether all tests fail
+    # If so there isn't any_ok, otherwise there is at least one ok
+    my ($all_arent_ok) = does_all(sub {!$sub->(@_)}, $params, $test_name);
+    my $ok = !$all_arent_ok;
+    $Tester->ok( $ok, $test_name );
     return $ok;
 }
 
@@ -122,6 +136,9 @@ Test::ManyParams - module to test many params as one test
          
   all_are       CODE  VALUE,   PARAMETERS, [ TEST_NAME ]
   all_arent     CODE  VALUE,   PARAMETERS, [ TEST_NAME ]
+  
+  any_ok {drunken_person() eq shift()}
+         ["Jim Beam", "Jonny Walker", "Jack Daniels"];
   
   [NOT YET IMPLEMENTED]
   
@@ -253,6 +270,10 @@ The equivalent to C<Test::More>'s C<isnt> method.
 The given subroutine has to return always values different from the given one.
 They are compared with 'eq'.
 
+=item any_ok  CODE  PARAMETERS,  [ TEST_NAME ]
+
+Returns whether the subroutine returns true for one of the given parameters.
+
 =back
 
 
@@ -301,6 +322,8 @@ Here's a list of them:
 
 =back
 
+Similar methods are planned with the prefix any_.
+
 Then I'd like to implement a method that uses only some random
 choosen parameters instead of all parameters.
 
@@ -331,10 +354,6 @@ That's only a short synopsis of this discussion,
 it will be better explained when these features are built in.
 
 Of course, there will be also some methods like C<most_are>,C<most_arent>,... .
-
-
-The next thing, I'll do is to implement the C<all_dies_ok> method.
-
 
 =head1 SEE ALSO
 
