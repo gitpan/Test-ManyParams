@@ -1,5 +1,10 @@
 Revision history for Perl extension Test::ManyParams.
 
+0.08  Tue Sep 03
+        - implemented access to the seeding value used of Test::ManyParams
+        * $Test::ManyParams::seed
+        - added Readonly to the requirements
+
 0.07  Thu Aug 29
         - implemented (global) seed option
           * use Test::ManyParams seed => '....';

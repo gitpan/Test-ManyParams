@@ -13,3 +13,4 @@ t/any_ok.t
 t/any_isnt.t
 t/any_is.t
 t/most_ok.t
+t/seed.t

@@ -46,7 +46,8 @@ This module requires these other modules and libraries:
 
     Test::Builder       
     Set::CrossProduct   
-    Data::Dumper        
+    Data::Dumper      
+    Readonly  
 
     Test::More               # for testing
     Test::Exception     

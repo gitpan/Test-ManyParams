@@ -19,11 +19,14 @@ our @EXPORT = qw/
     set_seed
 /;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use Test::Builder;
 use Set::CrossProduct;
 use Data::Dumper;
+use Readonly;
+
+our $seed;
 
 my $Tester = Test::Builder->new();
 
@@ -198,13 +201,15 @@ sub _dump_params {
 
 sub import {
     my @import_arg;
+    my $seed_now = time ^ $$;               # default value for the seed
     while (local $_ = shift @_) {
-            /seed/    && do { my $seed = shift(); 
-                              $seed =~ /^\d+$/ or die "The seed must be an integer";
-                              srand( $seed ) 
+            /seed/    && do { $seed_now = shift(); 
+                              $seed_now =~ /^\d+$/ or die "The seed must be an integer";
                             }
         or  "DEFAULT" && push @import_arg, $_;
     }
+    srand($seed_now);
+    Readonly::Scalar $seed => $seed_now;
     Test::ManyParams->export_to_level(1, @import_arg);
 }
 
@@ -415,6 +420,15 @@ foreach test script and file it's own random numbers,
 so that several modules all using this Test::ManyParams
 module won't collide.
 
+If you don't seet a seed value,
+at default the C<time ^ $$> value will be taken as seed
+(the default value could be changed in future versions without any notice).
+That's not a very good seed,
+but I hope it will be good and quick enough for the most cases.
+
+You can access the setted seed with the variable
+C<$Test::ManyParams::seed>. That's a non-exported, readonly variable.
+
 Please take care only to import Test::ManyParams
 one times in one package,
 as the use command is executed while compile time
@@ -490,7 +504,7 @@ and to give the possibility to set them
 Recognising a failed test, this seed has to be printed.
 It always seems to be sensful to set an own random numbering for each package
 using this module.
-That still has to be done.
+The last part still has to be done.
 
 That's only a short synopsis of this discussion,
 it will be better explained when these features are built in.
