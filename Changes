@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::ManyParams.
 
+0.09  Tue Mar 27, 2003
+        - removed use of Readonly module for the seed variable,
+          as it is not so important but made problems for multiple imports of T::MP
+
 0.08  Tue Sep 03
         - implemented access to the seeding value used of Test::ManyParams
         * $Test::ManyParams::seed

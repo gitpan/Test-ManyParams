@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use Test::ManyParams;
-use Test::More tests => 11;
+use Test::More tests => 10;
 use Test::Differences;
 use Test::Exception;
 
@@ -56,6 +56,6 @@ sleep 2;
 
 isnt $seed1, $seed2, "Two seeds should be different";
 
-throws_ok {import Test::ManyParams; $Test::ManyParams::seed = 3}
-          qr/read ?only/i,
-          '$Test::ManyParams::seed should be a readonly variable';
+#throws_ok {import Test::ManyParams; $Test::ManyParams::seed = 3}
+#          qr/read ?only/i,
+#          '$Test::ManyParams::seed should be a readonly variable';

@@ -1,4 +1,4 @@
-Test/ManyParams version 0.07
+Test/ManyParams version 0.09
 ============================
 
 SYNOPSIS
@@ -47,7 +47,6 @@ This module requires these other modules and libraries:
     Test::Builder       
     Set::CrossProduct   
     Data::Dumper      
-    Readonly  
 
     Test::More               # for testing
     Test::Exception     

@@ -19,13 +19,11 @@ our @EXPORT = qw/
     set_seed
 /;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use Test::Builder;
 use Set::CrossProduct;
 use Data::Dumper;
-use Readonly;
-
 our $seed;
 
 my $Tester = Test::Builder->new();
@@ -209,7 +207,8 @@ sub import {
         or  "DEFAULT" && push @import_arg, $_;
     }
     srand($seed_now);
-    Readonly::Scalar $seed => $seed_now;
+    #Readonly::Scalar $seed => $seed_now;
+    $seed = $seed_now;
     Test::ManyParams->export_to_level(1, @import_arg);
 }
 

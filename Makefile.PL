@@ -8,7 +8,6 @@ WriteMakefile(
         Test::Builder       => 0,
         Set::CrossProduct   => 0,
         Data::Dumper        => 0,
-        Readonly            => 0,
 
         Test::More          => 0,   # only for the tests
         Test::Exception     => 0,
