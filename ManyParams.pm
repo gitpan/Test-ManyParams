@@ -15,9 +15,11 @@ our @EXPORT = qw/
     any_is any_isnt
     
     most_ok
+    
+    set_seed
 /;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use Test::Builder;
 use Set::CrossProduct;
@@ -186,7 +188,6 @@ sub _try_most_of_xproduct {
     return undef;
 }
 
-
 sub _dump_params {
     local $_ = Dumper($_[0]);
     s/\s+//gs;   # remove all indents, but I didn't want to set 
@@ -195,6 +196,17 @@ sub _dump_params {
     return $_;
 }
 
+sub import {
+    my @import_arg;
+    while (local $_ = shift @_) {
+            /seed/    && do { my $seed = shift(); 
+                              $seed =~ /^\d+$/ or die "The seed must be an integer";
+                              srand( $seed ) 
+                            }
+        or  "DEFAULT" && push @import_arg, $_;
+    }
+    Test::ManyParams->export_to_level(1, @import_arg);
+}
 
 1;
 
@@ -386,6 +398,27 @@ that are tested twice or more often.
 
 =back
 
+=head2 IMPORTING
+
+In the most cases,
+you will simply import this module
+(C<use Test::ManyParams>).
+
+But when you want to set the seed for the randomization
+of the C<most_ok> method,
+the way for importing looks like
+C<use Test::ManyParams seed => 42>.
+
+At the time, it only will call C<srand(42)>,
+but later on, it will hold
+foreach test script and file it's own random numbers,
+so that several modules all using this Test::ManyParams
+module won't collide.
+
+Please take care only to import Test::ManyParams
+one times in one package,
+as the use command is executed while compile time
+and so different seedings will be confusing.
 
 =head2 EXPORT
 

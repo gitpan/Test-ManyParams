@@ -1,4 +1,4 @@
-Test/ManyParams version 0.05
+Test/ManyParams version 0.07
 ============================
 
 SYNOPSIS
@@ -17,6 +17,9 @@ SYNOPSIS
          ["Jim Beam", "Jonny Walker", "Jack Daniels"];
   any_is {ask_for_sense_of_life(shift())} 42, ["Jack London", "Douglas Adams"];
            
+  most_ok {$img->colorAt($_[0],$_[1]) == BLACK} 
+         [ [0 .. 10_000], [0 .. 10_000] ] => 100,
+         "100 random pixels of a black image should be black";
   
   [NOT YET IMPLEMENTED]
   
@@ -48,6 +51,7 @@ This module requires these other modules and libraries:
     Test::More               # for testing
     Test::Exception     
     Test::Builder::Tester
+    Test::Differences
 
 COPYRIGHT AND LICENCE
 

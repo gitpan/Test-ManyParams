@@ -12,7 +12,7 @@ WriteMakefile(
         Test::More          => 0,   # only for the tests
         Test::Exception     => 0,
         Test::Builder::Tester => 0,
-        
+        Test::Differences   => 0,
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (AUTHOR     => 'Janek Schleicher <bigj@kamelfreund.de>') : ()),
