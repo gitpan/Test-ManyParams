@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::ManyParams.
 
+0.06  Mon Aug 26
+        - implemented rudimentary most_ok method
+          * most_ok CODE PARAMETERS => NR [,TEST_NAME]
+
 0.05  Tue Aug 20
         - implemented any_is, any_isnt method
 

@@ -8,14 +8,16 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our @EXPORT = qw(
+our @EXPORT = qw/
     all_ok	
     all_are all_arent
     any_ok
     any_is any_isnt
-);
+    
+    most_ok
+/;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use Test::Builder;
 use Set::CrossProduct;
@@ -45,12 +47,44 @@ sub does_all {
     return ($ok, @diag);
 }
 
+sub does_most {
+    my ($sub, $params, $nr) = @_;
+    my $failed_param = undef;
+    $nr =~ /^\d+$/ or die "The number of tests that shall be done must be an integer, not '$nr'";
+    if (ref($params->[0]) eq 'ARRAY') {
+        if (grep {ref($params->[$_]) ne 'ARRAY'} (1 .. @$params-1)) {
+            die "If the first parameter is an arrayref, all other parameters must be also. " .
+                "Called with Parameter-Ref: " . _dump_params($params);
+        }
+        $failed_param = @$params > 1
+            ? _try_most_of_xproduct($sub,$nr, Set::CrossProduct->new( $params ))
+            : _try_most_of_the_list($sub,$nr, @{$params->[0]});
+    } else {
+        $failed_param = _try_most_of_the_list($sub,$nr, @$params);
+    }
+    my $ok = not defined($failed_param);
+    my @diag = $ok 
+        ? () 
+        : ("Tests with most ($nr) of the parameters: " . _dump_params($params),
+           "Failed using these parameters: " . _dump_params($failed_param));
+    return ($ok, @diag);
+}
+
+
 sub all_ok(&$;$) {
     my ($sub, $params, $test_name) = @_;
     my ($ok, @diag) = does_all(@_);
     $Tester->ok( $ok, $test_name ) or do { $Tester->diag($_) for @diag };
     return $ok;
 }
+
+sub most_ok(&$$;$) {
+    my ($sub, $params, $nr, $test_name) = @_;
+    my ($ok, @diag) = does_most(@_);
+    $Tester->ok( $ok, $test_name ) or do { $Tester->diag($_) for @diag };
+    return $ok;
+}
+
 
 sub any_ok(&$;$) {
     my ($sub, $params, $test_name) = @_;
@@ -124,6 +158,16 @@ sub _try_all_of_the_list {
     return undef;
 }
 
+sub _try_most_of_the_list {
+    my ($sub,$nr,@param) = @_;
+    while ($nr-- > 0) {
+        my $p = $param[rand @param];
+        $sub->($p) or return [$p];
+    }
+    return undef;
+}
+
+
 sub _try_all_of_xproduct {
     my ($sub, $iterator) = @_;
     my $tuple = undef;
@@ -132,6 +176,16 @@ sub _try_all_of_xproduct {
     }
     return $tuple;
 }
+
+sub _try_most_of_xproduct {
+    my ($sub, $nr, $iterator) = @_;
+    while ($nr-- > 0) {
+        my $tuple = $iterator->random;
+        $sub->(@$tuple) or return $tuple;
+    }
+    return undef;
+}
+
 
 sub _dump_params {
     local $_ = Dumper($_[0]);
@@ -167,6 +221,10 @@ Test::ManyParams - module to test many params as one test
   any_ok {drunken_person() eq shift()}
          ["Jim Beam", "Jonny Walker", "Jack Daniels"];
   any_is {ask_for_sense_of_life(shift())} 42, ["Jack London", "Douglas Adams"];
+  
+  most_ok {$img->colorAt($_[0],$_[1]) == BLACK} 
+         [ [0 .. 10_000], [0 .. 10_000] ] => 100,
+         "100 random pixels of a black image should be black";
   
   [NOT YET IMPLEMENTED]
   
@@ -313,6 +371,19 @@ Returns whether there is at least one parameter (combination)
 for that the given subroutine results to a value different to 
 the specified one.
 
+=item most_ok  CODE  PARAMETERS  =>  NR_OF_TESTS  [, TEST_NAME]
+
+Tests NR_OF_TESTS (randomly choosen) parameter (combinations)
+of the given parameters. All the (randomly choosen) parameters
+have to let the subroutine results to true.
+
+This method is intended to used,
+when a full test would need to long and
+you want to avoid systematic mistakes.
+
+There could be some parameter (combinations),
+that are tested twice or more often.
+
 =back
 
 
@@ -321,6 +392,9 @@ the specified one.
 C<all_ok>
 C<all_are>
 C<all_arent>
+C<any_is>
+C<any_isnt>
+C<most_ok>
 
 =head1 BUGS
 
@@ -332,6 +406,12 @@ can destroy a useful parameter outprint.
 I don't plan to fix this behaviour in the next time,
 as I there a more important things to do.
 (Who changes global variables harvest what he/she/it has seed.)
+
+The C<most_ok> method is hard to test.
+I wrote some tests that helped to remove the obviously bugs,
+but there could be some subtle bugs.
+Especially I didn't test what happens,
+if you try to test more parameters than there could be.
 
 There are perhaps many mistakes in this documentation.
 
@@ -363,21 +443,10 @@ Here's a list of them:
 
 Similar methods are planned with the prefix any_.
 
-Then I'd like to implement a method that uses only some random
-choosen parameters instead of all parameters.
-
-That is important when the parameter set is too big to
-have a full test of on them.
-
-This method will look like
-
-  most_ok CODE  PARAMETERS  =>  PART,  [TEST_NAME]
-  
-where the PART is something like a normal number,
-defining the number of parameters that have to be tested,
-or a percentage rate or a time rate.
-Also an addition to say that all bounds have to be tested is planned.
-Typical examples for PART could be C<'1000', '1%', '5s', '100 + bounds'>.
+The C<most_ok> method should accept also
+a percentage rate and a time slot or ... for specification of
+how many tests should be run.
+Typical examples for that could be C<'1000', '1%', '5s', '100 + bounds'>.
 
 The pro and contra of had been discussed a bit on perl.qa.
 One of the results is that random parameter tests are very sensful,
@@ -388,6 +457,7 @@ and to give the possibility to set them
 Recognising a failed test, this seed has to be printed.
 It always seems to be sensful to set an own random numbering for each package
 using this module.
+That still has to be done.
 
 That's only a short synopsis of this discussion,
 it will be better explained when these features are built in.
